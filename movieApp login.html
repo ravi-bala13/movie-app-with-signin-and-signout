@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>movieApp Login</title>
+    <style>
+
+        #container{
+            width: 400px;
+            border: 1px solid rgb(226, 219, 219);
+            margin: auto;
+            margin-top: 100px;
+            padding: 20px;
+            
+        }
+
+        .google-logo, h1, .under-signin, .input-div, .login-btn{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* margin-bottom: 0px; */
+            /* border: 1px solid red; */
+            
+        }
+
+        .input-div{
+            margin-top: 10px;
+        }
+
+        h1{
+            margin-top: 0px;
+        }
+
+        .google-logo > img{
+            width: 90px;
+                        
+        }
+
+        #username, #password{
+            width: 400px;
+            height: 50px;
+            margin: auto;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .login-btn{
+            width: 80px;
+            height: 30px;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="container">
+
+        <div class="google-logo"> <img src="https://pngimg.com/uploads/google/google_PNG19642.png" alt=""> </div>
+
+        <h1>Sign in</h1>
+
+        <div class="under-signin"> continue to movie app</div>
+
+        <form onsubmit="Login(event)" id="login-form">
+
+            <input class="input-div" type="text" id="username" placeholder="Enter your user name">
+
+            <a href="">Forgot email?</a><br><br>
+
+            <input class="input-div" type="text" id="password" placeholder="password">
+
+            <p>Not your computer? Use Guest mode to sign in privately.</p>
+
+            <a href="">Learn more</a><br><br>
+
+            <a href="movieApp signup.html">create Account</a><br><br>
+
+            <button class="login-btn">Login</button>
+        
+        </form>
+        
+
+    </div>
+    
+</body>
+</html>
+
+<script>
+
+    var user_data;
+    
+    function Login(e)
+        {
+            e.preventDefault()
+            let form = document.getElementById("login-form");
+
+            user_data = 
+            {
+                password: form.password.value,
+                username: form.username.value,
+            };
+
+            
+
+            let data_to_send = JSON.stringify(user_data);
+            console.log("data_to_send:", data_to_send);
+
+            fetch("https://masai-api-mocker.herokuapp.com/auth/login", {
+                method: "POST",
+                body: data_to_send,
+
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            .then((res) => {
+                return res.json();
+            })
+            .then((res)=> {
+                
+                console.log("res:", res);
+                fetchmyData(user_data.username, res.token);
+            })
+            .catch((err)=> {
+                console.log("err:", err);
+            });
+        }
+
+        function fetchmyData(username, token)
+        {
+            fetch(`https://masai-api-mocker.herokuapp.com/user/${username}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => {
+                return res.json();
+            })
+            .then((res)=> {
+                console.log("res:", res);
+
+                console.log("res message:", res.message);
+                if(res.message == "Invalid token for user"){
+
+                    alert("Invalid token for user");
+
+                }else{
+
+                    if(localStorage.getItem("movieApp_login_details") === null){
+                        localStorage.setItem("movieApp_login_details", JSON.stringify( [] ));
+                    }else{
+                        localStorage.setItem("movieApp_login_details", JSON.stringify( [user_data] ));
+                        console.log('user_data:', user_data)
+                    }
+
+                    window.location.href = "movieApp with debouncing.html";
+
+                }
+
+                
+
+            })
+            .catch((err)=> {
+                alert(err)
+                console.log("err:", err);
+            });
+        }
+
+</script>

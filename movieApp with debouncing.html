@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieApp with debouncing</title>
+</head>
+<style>
+
+    body{
+        background-color: black;
+        color: white;
+    }
+
+    #top-box{
+        width: 400px;
+        margin: auto;
+    }
+
+    #searched-movie{
+        padding-top: 30px;
+        display: flex;
+        flex-direction: row;
+    }
+
+    #searched-movie > img{
+
+        width: 180px;
+    }
+
+    #container{
+        /* border: 1px solid red; */
+        display: grid;
+        grid-template-columns: repeat(5,20%);
+        padding: 30px;
+        padding-left: 50px;
+    }
+    .movie-div{
+        width: 83%;
+        /* border: 1px solid red; */
+        
+    }
+    .movie-img{
+        width: 100%;
+        border-radius: 15px;
+    }
+
+    /* **********************de bouncing div box pa******************************** */
+    #input{
+        width: 400px;
+        margin: auto;
+        /* border: 1px solid yellow; */
+    }
+
+    input{
+        width: 350px;
+        height: 30px;
+    }
+
+    #movies {
+        height: 200px;
+        width: 356px;
+        /* border: 1px solid black; */
+        overflow: scroll;
+        border-top:none;
+    }
+    
+    #movies::-webkit-scrollbar{
+        display: none;
+    }
+    /* ************************each div which is apend to debounce div when search movie *************** */
+    
+    .each-div{
+        margin-top: 5px;
+        display: flex;
+        flex-direction: row;
+
+    }
+    .each-div > img{
+        width: 28px;
+    }
+
+    .details-div{
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+        margin-left: 10px;
+    }
+
+    #login-button, #logout-button{
+        width: 100px;
+        height: 40px;
+    }
+    #logout-button{
+        display: none;
+    }
+    #log{
+        margin-left: 1100px;
+        display: flex;
+        flex-direction: row;
+    }
+
+</style>
+<body>
+
+    <div id="log">
+
+        <button id="login-button" onclick="Goto_login()"> Login</button>
+        <button id="logout-button" onclick="Logout()">Logout</button>
+
+    </div>
+    
+
+    <div id="top-box">
+
+        <h1>MovieApp with debouncing</h1>
+
+        <div id="input">
+            <!-- <input type="text" id="movie" placeholder="Enter movie name">
+
+            <button onclick="Get_movie()">Get Movie</button> -->
+            <input oninput="debounce(main, 1000)" type="text" id="movie" placeholder="Enter movie name" />
+    
+            <div id="movies">
+
+            </div>
+
+        </div>
+
+        
+
+        <div id="searched-movie"> </div>
+
+
+    </div>
+    
+    
+    <div id="container"></div>
+
+</body>
+</html>
+
+<script>
+
+    get_username();
+
+
+    function Goto_login(){
+
+        window.location.href = "movieApp login.html";
+
+        get_username();
+
+        // let btn = document.getElementById("login-button");
+        //     btn.innerText = "bala";
+        
+    }
+
+    function get_username(){
+        // alert("hai")
+
+        let logout_btn = document.getElementById("logout-button");
+            
+
+
+        let login_div = document.getElementById("login-button");
+
+        let user_details = JSON.parse(localStorage.getItem("movieApp_login_details"));
+
+        console.log('user_details[0]:', user_details[0])
+
+            if(user_details[0] != []){
+                console.log('user_details[0]:', user_details[0])
+                login_div.innerText = user_details[0].username;
+
+                logout_btn.style.display = "block";
+            }
+
+    }
+
+    function Logout(){
+
+        // let user_details = JSON.parse(localStorage.getItem("login_details"));
+
+        localStorage.setItem("movieApp_login_details", JSON.stringify( [] ));
+
+        window.location.href = "movieApp with debouncing.html";
+
+    }
+    // ****************************
+
+    var container = document.getElementById("container");
+
+    Set_movie()
+
+    //when the page is load it will call 
+
+    async function Set_movie(){
+        // console.log("hai")
+        //`https://www.omdbapi.com/?t=${movie}&apikey=6ea40c94`
+        container.innerHTML = null;
+
+        let movie = document.getElementById("movie").value;
+
+        let res = await fetch("https://api.themoviedb.org/3/movie/popular?api_key=e68a35399789d0391ca6a9b728e262e6&language=en-US&page=1");
+        // let res = await fetch(`https://www.omdbapi.com/?s=${movie}&apikey=6ea40c94`);
+
+        console.log('res:', res)
+
+        let data = await res.json();
+
+        console.log('data:', data)
+        console.log('datatype:', typeof(data))
+
+        console.log('movies list:', data.results)
+
+        // show all favorite movies 
+
+        Show_movie(data.results)
+
+        function Show_movie(movie_list){
+
+            movie_list.forEach(element => {
+                // console.log(element)
+                let div = document.createElement("div");
+                div.setAttribute("class", "movie-div")
+
+                let img = document.createElement("img");
+                    // img.src = element.backdrop_path;
+                    img.src = `https://image.tmdb.org/t/p/w500${element.poster_path}`;
+                    img.setAttribute("class", "movie-img")
+                     
+                    // console.log(img)
+
+                let name = document.createElement("p");
+                    name.innerHTML = "Name : " +  element.title;
+                    // console.log('name:', name)
+
+                let year = document.createElement("p");
+                    year.innerHTML = "Year : " +  element.release_date;
+
+                // let rating = document.createElement("p");
+                //     rating.innerHTML = "Ratings : " +  element.imdbRating;
+        
+                div.append(img, name, year);
+
+                container.append(div);
+
+            });
+            
+        
+        }
+
+    }
+
+
+    //when click a button it will call
+
+    var search_container = document.getElementById("searched-movie");
+
+    //**********De boounce method ***************
+
+    async function Search_movies(moviename){
+
+        try{
+
+            // *************API for multiple movies for searched name which returns around 10 movies
+            let res = await fetch(`http://www.omdbapi.com/?apikey=638a97f4&s=${moviename}`);
+            let data = await res.json();
+            console.log('data:', data)
+            return data;
+
+        }catch(e){
+
+            console.log("error",e)
+
+        }
+
+    }
+
+    
+    //*************after search it will append the movies
+    function appendMovies(movies){
+     
+
+        if(movies===undefined){
+            return false;
+        }
+        let movie_div = document.getElementById("movies");
+        movie_div.innerText = null;
+
+        movies.forEach(function(movie) {
+
+            let each_div = document.createElement("div");
+                each_div.setAttribute("class", "each-div");
+
+            let img = document.createElement("img");
+                img.src = movie.Poster;
+
+            let details_div = document.createElement("div");
+                details_div.setAttribute("class", "details-div")
+            
+            let name=document.createElement("name")
+                name.innerText = movie.Title;
+
+            let year=document.createElement("year")
+                year.innerText = movie.Year;
+
+            details_div.append(name, year)
+
+            each_div.append(img, details_div);
+
+            movie_div.append(each_div);
+
+            each_div.onclick = function() {
+
+                // Goto_movie(movie)
+                
+                console.log("movie",movie);
+                movie_div.style.display = "none";
+
+                let goto_div = document.getElementById("searched-movie");
+
+                let img = document.createElement("img");
+                    img.src = movie.Poster;
+                    img.style.width = "100px";
+                    
+
+                goto_div.append(img, details_div)
+
+            }
+        });
+
+    }
+
+    function Goto_movie(data){
+
+        console.log('movie:', data)
+
+    }
+
+    var timerId;
+    async function main(){
+        let movie_name = document.getElementById("movie").value;
+        console.log('movie_name:', movie_name)
+        
+        if(movie_name.length < 3){
+            return false;
+        }
+
+        let res = await Search_movies(movie_name);  //which return data of 10 movies
+        let movies_data = res.Search;
+        console.log('movies_data:', movies_data)
+        appendMovies(movies_data);
+
+    }
+
+    function debounce(func, delay){
+
+        if(timerId){
+            clearTimeout(timerId);
+        }
+
+        timerId = setTimeout(()=>{
+            func();
+        }, delay);
+
+    }
+
+    async function Get_movie(){
+        // console.log("hai")
+        //`https://www.omdbapi.com/?t=${movie}&apikey=6ea40c94`
+        search_container.innerHTML = null;
+
+        let movie = document.getElementById("movie").value;
+
+        
+        let res = await fetch(`https://www.omdbapi.com/?s=${movie}&apikey=6ea40c94`);
+
+        console.log('res:', res)
+
+        let data = await res.json();
+
+        console.log('data:', data)
+        console.log('datatype:', typeof(data))
+
+        console.log('movies list:', data.Search)
+
+        // Show_products(data);
+
+        function Show_products(prod){        
+            
+            let div = document.createElement("div");
+
+            let img = document.createElement("img");
+            // console.log('prod.Poster:', prod.Poster)
+                if(prod.Poster == undefined){
+                    
+                    img.src = "https://c.tenor.com/az538zZ1pS0AAAAM/sorry-my-fault.gif";
+                    let err_msg = document.createElement("h4");
+                        err_msg.innerText = "Sorry could not find movie you search"
+
+                    div.append(img, err_msg);
+
+                    search_container.append(div);
+                    return
+                }
+                img.src = prod.Poster;
+                console.log('img:', img)
+                
+                
+
+            let name = document.createElement("p");
+                name.innerHTML = "Name : " +  prod.Title;
+                console.log('name:', name)
+
+            let year = document.createElement("p");
+                year.innerHTML = "Year : " +  prod.Released;
+
+            let rating = document.createElement("p");
+                rating.innerHTML = "Ratings : " +  prod.imdbRating;
+        
+            div.append(img, name, year, rating);
+
+            search_container.append(div);
+
+        
+
+        }
+
+    }
+
+</script>

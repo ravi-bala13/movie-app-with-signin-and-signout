@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube signup</title>
+    <style>
+
+        #container{
+            width: 400px;
+            border: 1px solid rgb(226, 219, 219);
+            margin: auto;
+            margin-top: 100px;
+            padding: 20px;
+            
+        }
+
+        /* .google-logo, h1, .under-signin, .input-div, .login-btn{
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            margin-bottom: 0px;
+            border: 1px sol  id red;
+            
+        } */
+
+        .input-div{
+            margin-top: 10px;
+        }
+
+        .input-name-div{
+            width: 195px;
+            height: 30px;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        h1{
+            margin-top: 0px;
+            margin-bottom: 5px;
+        }
+
+        .google-logo > img{
+            width: 90px;
+                        
+        }
+
+        .input-div{
+            width: 400px;
+            height: 30px;
+            margin: auto;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .login-btn{
+            width: 80px;
+            height: 30px;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 5px;
+            margin-left: 300px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="container">
+
+        <div class="google-logo"> <img src="https://pngimg.com/uploads/google/google_PNG19642.png" alt=""> </div>
+
+        <h1>create your Google Account</h1>
+
+        <div class="under-signin"> continue to youtube</div><br>
+
+        <form onsubmit="Signup(event)" id="signup-form">
+
+            <input class="input-name-div" type="text" placeholder="Enter your name" id="name">&nbsp;&nbsp;<input class="input-name-div" type="text" placeholder="User name" id="username"><br><br>
+
+            <input class="input-div" type="text" id="email" placeholder="Email or phone number">
+
+            <p>Not your computer? Use Guest mode to sign in privately.</p>
+
+            <a href="">Create new email instead</a><br><br>
+
+            <input class="input-name-div" type="text" placeholder="password" id="password">&nbsp;&nbsp;<input class="input-name-div" type="text" placeholder="Enter your mobile numebr" id="mobile">
+ 
+            
+
+            <a href="">Learn more</a><br><br>
+
+            <a href="utube login.html">Sign in instead</a><br><br>
+
+            <input class="login-btn" type = "submit"/>
+
+        </form>
+        
+        
+
+    </div>
+    
+</body>
+</html>
+
+<script>
+
+if(localStorage.getItem("movieApp_signup_details") === null){
+    localStorage.setItem("movieApp_signup_details", JSON.stringify( [] ));
+}
+
+function Signup(e)
+    {
+        e.preventDefault()
+        let form = document.getElementById("signup-form");
+
+        let user_data = 
+        {
+            name: form.name.value,
+            email: form.email.value,
+            password: form.password.value,
+            username: form.username.value,            
+            mobile: form.mobile.value,
+            // mobile: form.mobile.value,
+            description: "hai",
+        };
+
+        //*****************access local storage*****************
+
+        let user_details = JSON.parse(localStorage.getItem("movieApp_signup_details"));
+            
+            user_details.push(user_data);
+
+        localStorage.setItem("movieApp_signup_details", JSON.stringify(user_details));
+
+            console.log('user_details:', user_details)
+
+        console.log('user_data:', user_data)
+        user_data = JSON.stringify(user_data);
+        console.log('user_dat:', user_data)
+
+        // // <!-- mocker/wiki/Authentication-API -->
+        // // fetch("https://masai-api-mocker.herokuapp.com/auth/register")
+
+        fetch("https://masai-api-mocker.herokuapp.com/auth/register", {
+            method: "POST",
+            body: user_data,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        .then((res)=> {
+            return res.json();
+        })
+        .then((res)=> {
+            console.log("res:", res);
+
+            if(res.error == true){
+                alert(res.message)
+            }else{
+                alert("Account created successfully")
+                window.location.href = "movieApp login.html";
+            }
+            
+            
+        })
+        .catch((err)=> {
+            console.log("err:", err);
+        });
+    }
+
+    
+
+</script>
